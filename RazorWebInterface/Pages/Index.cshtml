@@ -1,0 +1,59 @@
+﻿@page
+@model IndexModel
+@{
+	ViewData["Title"] = "Home page";
+}
+
+@section Styles{
+	<link rel="stylesheet" href="~/css/hover.css" asp-append-version="true" />
+}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if (@Model.ActionResult != null)
+{
+	<script type="text/javascript">
+		Swal.fire({
+			text: '@Model.ActionResult',
+			toast: true,
+			position: 'top-end',
+			showConfirmButton: false,
+			icon: 'info',
+			timer: 1500
+		})
+	</script>
+}
+
+<h1 class="display-4 text-center my-4">Keep track of your best yumyums</h1>
+
+<div class="py-2">
+	
+	<div class="row">
+
+		<div class="col-lg-6 p-3">
+			<a asp-page="/Recipes/Index">
+				<div class="hover hover-2 text-white rounded">
+					<img src="https://www.arrajol.com/sites/default/files/styles/800x533/public/2021-10/Keto-Diet-Foods.jpg" alt="">
+					<div class="hover-overlay"></div>
+					<div class="hover-2-content px-5 py-4">
+						<h3 class="hover-2-title text-uppercase fw-bold mb-0 text-light"> <span class="fw-light">Browse </span>Recipes</h3>
+						<p class="hover-2-description text-uppercase mb-0">Browse your Recipes and<br>add new ones or update the old ones.</p>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<div class="col-lg-6 p-3">
+			<a asp-page="/Categories/Index">
+				<div class="hover hover-2 text-white rounded">
+					<img src="~/images/jimmy-dean-Yn0l7uwBrpw-unsplash.jpg" alt="">
+					<div class="hover-overlay"></div>
+					<div class="hover-2-content px-5 py-4">
+						<h3 class="hover-2-title text-uppercase fw-bold mb-0 text-light"> <span class="fw-light">Browse </span>Categories</h3>
+						<p class="hover-2-description text-uppercase mb-0">Browse your categories and<br>add new ones or update the old ones.</p>
+					</div>
+				</div>
+			</a>
+		</div>
+
+	</div>
+</div>

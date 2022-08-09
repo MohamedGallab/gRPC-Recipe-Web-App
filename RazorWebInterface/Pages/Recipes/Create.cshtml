@@ -1,0 +1,47 @@
+﻿@page
+@model 			CreateModel
+@{
+	ViewData["Title"] = "Create";
+}
+
+<h2 class="my-4">Add A New Recipe</h2>
+
+<form method="post">
+	<div class="my-3 row">
+		<label asp-for="@Model.Recipe.Title" class="col-2 col-form-label"></label>
+		<div class="col-3">
+			<input asp-for="@Model.Recipe.Title" class="form-control" />
+		</div>
+		<span asp-validation-for="@Model.Recipe.Title" class="text-danger"></span>
+	</div>
+
+	<div class="my-3 row">
+		<label asp-for=@Model.Recipe.Ingredients class="col-form-label col-2 "></label>
+		<div class="col-5">
+			<textarea class="form-control" asp-for=@Model.Ingredients rows="5" placeholder="enter every ingredient on a separate line"></textarea>
+		</div>
+	</div>
+
+	<div class="my-3 row">
+		<label asp-for=@Model.Recipe.Instructions class="col-form-label col-2 "></label>
+		<div class="col-5">
+			<textarea class="form-control" asp-for=@Model.Instructions rows="5" placeholder="enter every instruction on a separate line"></textarea>
+		</div>
+	</div>
+
+	<div class="my-3 row">
+		<label asp-for=@Model.Recipe.Categories class="col-form-label col-2 "></label>
+		<div class="col-10">
+			@foreach (string category in @Model.Categories)
+			{
+				<input name="ChosenCategories" type="checkbox" value="@category" /> @category
+
+				<br />
+			}
+		</div>
+	</div>
+	<div class="btn-group float-end">
+		<input type="submit" value="Create" class="btn btn-primary" />
+		<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+	</div>
+</form>

@@ -1,0 +1,45 @@
+﻿@page
+@model 			IndexModel
+@{
+	ViewData["Title"] = "Categories";
+}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if (@Model.ActionResult != null)
+{
+	<script type="text/javascript">
+		Swal.fire({
+			text: '@Model.ActionResult',
+			toast: true,
+			position: 'top-right',
+			timer: 1500,
+			showConfirmButton: false
+		})
+	</script>
+}
+
+<div class="container d-flex justify-content-between align-items-center my-4">
+	<h2>All Categories</h2>
+	<a class="btn btn-primary h-25" asp-page="Create">Add a Category</a>
+</div>
+
+<div class="row row-cols-auto justify-content-center g-4">
+	@foreach (var category in Model.CategoryList)
+	{
+		<div class="col">
+			<div class="card text-center">
+				<div class="card-body">
+					<h5 class="card-title">@category</h5>
+					<div class="btn-group">
+						<a class="btn btn-primary" asp-page="./Edit" asp-route-category="@category">
+							<i class="bi bi-pencil-square"></i>
+						</a>
+						<a class="btn btn-danger" asp-page="./Delete" asp-route-category="@category">
+							<i class="bi bi-trash"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+</div>

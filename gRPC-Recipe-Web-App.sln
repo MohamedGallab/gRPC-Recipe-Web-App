@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcRecipeBackend", "GrpcRecipeBackend\GrpcRecipeBackend.csproj", "{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcRecipeClient", "RazorWebInterface\GrpcRecipeClient.csproj", "{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FADD2BCC-B690-4B8C-BC9A-812FE9CBE30A}
+	EndGlobalSection
+EndGlobal

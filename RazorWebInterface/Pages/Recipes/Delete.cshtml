@@ -1,0 +1,25 @@
+﻿@page "{recipeId}"
+@model 			DeleteModel
+@{
+	ViewData["Title"] = "Delete";
+}
+<h2 class="my-4">Are you sure you want to delete this recipe?</h2>
+
+<div class="container">
+	<dl class="row">
+		<dt>
+			@Html.DisplayNameFor(Model => Model.Recipe.Title)
+		</dt>
+		<dd>
+			@Html.DisplayFor(Model => Model.Recipe.Title)
+		</dd>
+	</dl>
+
+	<form method="post">
+		<div class="btn-group float-end">
+			<input type="submit" value="Delete" class="btn btn-danger" />
+			<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+		</div>
+	</form>
+</div>
+
