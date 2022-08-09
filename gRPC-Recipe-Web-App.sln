@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcRecipeBackend", "GrpcRecipeBackend\GrpcRecipeBackend.csproj", "{1EFDAA3D-C385-49DE-8BD3-0C480A8DF531}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcRecipeClient", "RazorWebInterface\GrpcRecipeClient.csproj", "{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcRecipeClient", "GrpcRecipeClient\GrpcRecipeClient.csproj", "{0DFD3830-CF9C-4C71-9EA6-FC947137AAA6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
