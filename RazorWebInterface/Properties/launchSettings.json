@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "RazorWebInterface": {
+    "GrpcRecipeClient": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
