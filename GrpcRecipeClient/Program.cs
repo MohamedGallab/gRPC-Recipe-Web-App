@@ -1,4 +1,5 @@
 using GrpcRecipeClient;
+using GrpcRecipeClient.Protos;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,13 @@ builder.Services.AddHttpClient("RecipeAPI", httpClient =>
 	httpClient.DefaultRequestHeaders.Accept.Clear();
 	httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
+
 builder.Services.AddGrpcClient<Greeter.GreeterClient>(o =>
+{
+	o.Address = new Uri("https://localhost:7235");
+});
+
+builder.Services.AddGrpcClient<RecipeService.RecipeServiceClient>(o =>
 {
 	o.Address = new Uri("https://localhost:7235");
 });

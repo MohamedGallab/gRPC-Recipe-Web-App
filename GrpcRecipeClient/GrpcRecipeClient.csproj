@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<None Remove="Protos\greet.proto" />
+		<None Remove="Protos\recipe.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -26,10 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
-	</ItemGroup>
-	<ItemGroup>
 		<Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\recipe.proto" GrpcServices="Client" />
 	</ItemGroup>
-
 </Project>

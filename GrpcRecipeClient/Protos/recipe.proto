@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcRecipeClient.Protos";
+
+import "google/protobuf/empty.proto";
+package recipe;
+
+service RecipeService {
+  rpc ListRecipes (google.protobuf.Empty) returns (ListRecipesResponse);
+}
+
+message Recipe {
+	string id = 1;
+	string title = 2;
+	repeated string ingredients = 3;
+	repeated string instructions = 4;
+	repeated string categories = 5;
+}
+
+message ListRecipesResponse {
+	repeated Recipe recipes = 1;
+}
