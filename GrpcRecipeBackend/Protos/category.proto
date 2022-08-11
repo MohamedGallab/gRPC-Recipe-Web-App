@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcRecipeBackend.Protos";
+
+import "google/protobuf/empty.proto";
+package Category;
+
+service CategoryService {
+	rpc ListCategories (google.protobuf.Empty) returns (ListCategoriesResponse);
+	//rpc CreateCategory (String) returns (string);
+	//rpc UpdateCategory (string) returns (string);
+	//rpc DeleteCategory (string) returns (string);
+}
+
+message ListCategoriesResponse {
+	repeated string Categories = 1;
+}
