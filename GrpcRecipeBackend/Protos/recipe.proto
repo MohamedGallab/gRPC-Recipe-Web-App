@@ -6,7 +6,11 @@ import "google/protobuf/empty.proto";
 package recipe;
 
 service RecipeService {
-  rpc ListRecipes (google.protobuf.Empty) returns (ListRecipesResponse);
+	rpc ListRecipes (google.protobuf.Empty) returns (ListRecipesResponse);
+	rpc CreateRecipe (Recipe) returns (Recipe);
+	rpc ReadRecipe (Recipe) returns (Recipe);
+	rpc UpdateRecipe (Recipe) returns (Recipe);
+	rpc DeleteRecipe (Recipe) returns (Recipe);
 }
 
 message Recipe {

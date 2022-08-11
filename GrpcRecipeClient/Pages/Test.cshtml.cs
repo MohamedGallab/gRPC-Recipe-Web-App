@@ -17,6 +17,23 @@ public class TestModel : PageModel
 
 	public async Task OnGetAsync()
 	{
+		await UpdateRecipe();
+	}
+
+	public async Task CreateRecipe()
+	{
+		var reply = await _client.CreateRecipeAsync(new Recipe
+		{
+			Title = "tuna salad",
+			Categories = { "lunch", "dinner" },
+			Ingredients = { "tuna can" },
+			Instructions = { "open", "eat" }
+		});
+		Console.WriteLine(reply);
+	}
+
+	public async Task ListRecipes()
+	{
 		var reply = await _client.ListRecipesAsync(new Google.Protobuf.WellKnownTypes.Empty());
 		foreach (var recipe in reply.Recipes)
 		{
@@ -25,16 +42,34 @@ public class TestModel : PageModel
 		Console.WriteLine("Press any key to exit...");
 	}
 
-	//private readonly Greeter.GreeterClient _client;
+	public async Task ReadRecipe()
+	{
+		var reply = await _client.ReadRecipeAsync(new Recipe
+		{
+			Id = "1"
+		});
+		Console.WriteLine(reply);
+	}
 
-	//public TestModel(Greeter.GreeterClient client) =>
-	//	_client = client;
+	public async Task UpdateRecipe()
+	{
+		var reply = await _client.UpdateRecipeAsync(new Recipe
+		{
+			Id = "1",
+			Title = "Fresh Tuna Salad",
+			Categories = { "lunch", "snack" },
+			Ingredients = { "tuna can" },
+			Instructions = { "open", "eat" }
+		});
+		Console.WriteLine(reply);
+	}
 
-	//public async Task OnGetAsync()
-	//{
-	//	var reply = await _client.SayHelloAsync(
-	//					  new HelloRequest { Name = "GreeterClient" });
-	//	Console.WriteLine("Greeting: " + reply.Message);
-	//	Console.WriteLine("Press any key to exit...");
-	//}
+	public async Task DeleteRecipe()
+	{
+		var reply = await _client.DeleteRecipeAsync(new Recipe
+		{
+			Id = "1"
+		});
+		Console.WriteLine(reply);
+	}
 }
