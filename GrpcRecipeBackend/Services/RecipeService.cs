@@ -1,20 +1,14 @@
 ﻿using Grpc.Core;
 using GrpcRecipeBackend.Protos;
-using System.Text.Json;
 using Google.Protobuf;
 
 namespace GrpcRecipeBackend.Services;
 
 public class RecipeService : Protos.RecipeService.RecipeServiceBase
 {
-
-	private static List<Recipe> s_recipesList = new();
-	private static List<string> s_categoriesList = new();
-
-	public RecipeService()
-	{
-		LoadData();
-	}
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+	private static List<Recipe> s_recipesList = null;
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
 	public void LoadData()
 	{
@@ -42,6 +36,7 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 
 	public override Task<ListRecipesResponse> ListRecipes(Google.Protobuf.WellKnownTypes.Empty request, ServerCallContext context)
 	{
+		LoadData();
 		ListRecipesResponse response = new();
 		response.Recipes.AddRange(s_recipesList);
 		return Task.FromResult(response);
@@ -49,25 +44,18 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 
 	public override Task<Recipe> CreateRecipe(Recipe recipe, ServerCallContext context)
 	{
+		LoadData();
+
 		recipe.Id = Guid.NewGuid().ToString();
 		s_recipesList.Add(recipe);
 		SaveData();
 		return Task.FromResult(recipe);
 	}
 
-	public override Task<Recipe> ReadRecipe(Recipe recipe, ServerCallContext context)
-	{
-		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe foundRecipe)
-		{
-			return Task.FromResult(foundRecipe);
-		}
-
-		const string msg = "Could not find recipe";
-		throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
-	}
-
 	public override Task<Recipe> UpdateRecipe(Recipe recipe, ServerCallContext context)
 	{
+		LoadData();
+
 		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe oldRecipe)
 		{
 			s_recipesList.Remove(oldRecipe);
@@ -82,6 +70,8 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 
 	public override Task<Recipe> DeleteRecipe(Recipe recipe, ServerCallContext context)
 	{
+		LoadData();
+
 		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe oldRecipe)
 		{
 			s_recipesList.Remove(oldRecipe);

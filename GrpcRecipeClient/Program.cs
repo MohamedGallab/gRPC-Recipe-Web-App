@@ -23,6 +23,11 @@ builder.Services.AddGrpcClient<RecipeService.RecipeServiceClient>(o =>
 	o.Address = new Uri("https://localhost:7235");
 });
 
+builder.Services.AddGrpcClient<CategoryService.CategoryServiceClient>(o =>
+{
+	o.Address = new Uri("https://localhost:7235");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
