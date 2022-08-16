@@ -1,6 +1,4 @@
-using GrpcRecipeClient;
 using GrpcRecipeClient.Protos;
-using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 

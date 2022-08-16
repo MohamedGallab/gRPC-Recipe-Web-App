@@ -46,7 +46,7 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 
 		if(recipe.Title == null)
 		{
-			const string msg = "Could not find recipe";
+			const string msg = "Invalid Recipe";
 			throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
 		}
 
@@ -81,7 +81,7 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 		}
 
 		const string msg = "Could not find recipe";
-		throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
 	public override Task<Recipe> DeleteRecipe(Recipe recipe, ServerCallContext context)
@@ -96,6 +96,6 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 		}
 
 		const string msg = "Could not find recipe";
-		throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 }

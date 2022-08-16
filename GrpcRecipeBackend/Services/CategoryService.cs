@@ -64,6 +64,18 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 	{
 		LoadData();
 
+		if (request.Title == null)
+		{
+			const string msg = "Invalid Category";
+			throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		}
+
+		if (s_categoriesList.Find(r => r == request.Title) is string category)
+		{
+			const string msg = "Category already exists";
+			throw new RpcException(new Status(StatusCode.AlreadyExists, msg));
+		}
+
 		s_categoriesList.Add(request.Title);
 		SaveData();
 		return Task.FromResult(request);
@@ -90,7 +102,7 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 		}
 
 		const string msg = "Could not find category";
-		throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
 	public override Task<Category> DeleteCategory(Category request, ServerCallContext context)
@@ -109,6 +121,6 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 		}
 
 		const string msg = "Could not find category";
-		throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 }
