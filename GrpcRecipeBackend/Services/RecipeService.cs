@@ -8,25 +8,26 @@ namespace GrpcRecipeBackend.Services;
 public class RecipeService : Protos.RecipeService.RecipeServiceBase
 {
 	private static List<Recipe> s_recipesList = new();
-	string recipesFile = "Recipes.json";
+	private readonly string _recipesFile = "Recipes.json";
 
 	public async Task LoadDataAsync()
 	{
 		// load previous recipes if exists
-		if (File.Exists(recipesFile))
+		if (File.Exists(_recipesFile))
 		{
-			var jsonRecipesString = await File.ReadAllTextAsync(recipesFile);
+			var jsonRecipesString = await File.ReadAllTextAsync(_recipesFile);
 			s_recipesList = JsonConvert.DeserializeObject<List<Recipe>>(jsonRecipesString)!;
 		}
 		else
 		{
-			File.Create(recipesFile).Dispose();
+			File.Create(_recipesFile).Dispose();
 		}
 	}
 
 	public async Task SaveDataAsync()
 	{
-		await File.WriteAllTextAsync("Recipes.json", JsonConvert.SerializeObject(s_recipesList, Formatting.Indented));
+		await File.WriteAllTextAsync(_recipesFile, JsonConvert.SerializeObject(
+				s_recipesList.OrderBy(o => o.Title).ToList(), Formatting.Indented));
 	}
 
 	public override async Task<ListRecipesResponse> ListRecipes(Google.Protobuf.WellKnownTypes.Empty request, ServerCallContext context)

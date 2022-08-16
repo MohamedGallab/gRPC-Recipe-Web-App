@@ -41,8 +41,11 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 	public async Task SaveDataAsync()
 	{
 		await Task.WhenAll(
-			File.WriteAllTextAsync(_recipesFile, JsonConvert.SerializeObject(s_recipesList, Formatting.Indented)),
-			File.WriteAllTextAsync(_categoriesFile, JsonConvert.SerializeObject(s_categoriesList, Formatting.Indented))
+			File.WriteAllTextAsync(_recipesFile, JsonConvert.SerializeObject(
+				s_recipesList.OrderBy(o => o.Title).ToList(), Formatting.Indented)),
+
+			File.WriteAllTextAsync(_categoriesFile, JsonConvert.SerializeObject(
+				s_categoriesList.OrderBy(o => o).ToList(), Formatting.Indented))
 		);
 	}
 
