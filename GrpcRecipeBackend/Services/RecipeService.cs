@@ -6,9 +6,7 @@ namespace GrpcRecipeBackend.Services;
 
 public class RecipeService : Protos.RecipeService.RecipeServiceBase
 {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-	private static List<Recipe> s_recipesList = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+	private static List<Recipe> s_recipesList = new();
 
 	public void LoadData()
 	{
@@ -46,10 +44,28 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 	{
 		LoadData();
 
+		if(recipe.Title == null)
+		{
+			const string msg = "Could not find recipe";
+			throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
+		}
+
 		recipe.Id = Guid.NewGuid().ToString();
 		s_recipesList.Add(recipe);
 		SaveData();
 		return Task.FromResult(recipe);
+	}
+
+	public override Task<Recipe> ReadRecipe(Recipe recipe, ServerCallContext context)
+	{
+		LoadData();
+
+		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe foundRecipe)
+		{
+			return Task.FromResult(foundRecipe);
+		}
+		const string msg = "Could not find recipe";
+		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
 	public override Task<Recipe> UpdateRecipe(Recipe recipe, ServerCallContext context)

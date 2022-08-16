@@ -1,4 +1,4 @@
-using GrpcRecipeClient.Models;
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +11,7 @@ public class CreateModel : PageModel
 	public string? ActionResult { get; set; }
 	[BindProperty]
 	[Required]
-	public Recipe Recipe { get; set; } = new();
+	public string Title { get; set; } = string.Empty;
 	public IEnumerable<string> Categories { get; set; } = Enumerable.Empty<string>();
 	[BindProperty]
 	public IEnumerable<string>? ChosenCategories { get; set; } = Enumerable.Empty<string>();
@@ -19,10 +19,13 @@ public class CreateModel : PageModel
 	public string? Ingredients { get; set; } = string.Empty;
 	[BindProperty]
 	public string? Instructions { get; set; } = string.Empty;
-	private readonly IHttpClientFactory _httpClientFactory;
-
-	public CreateModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	private readonly RecipeService.RecipeServiceClient _recipeServiceClient;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
+	public CreateModel(RecipeService.RecipeServiceClient recipeServiceClient, CategoryService.CategoryServiceClient categoryServiceClient)
+	{
+		_recipeServiceClient = recipeServiceClient;
+		_categoryServiceClient = categoryServiceClient;
+	}
 	public async Task<IActionResult> OnGetAsync()
 	{
 		try
@@ -39,6 +42,7 @@ public class CreateModel : PageModel
 
 	public async Task<IActionResult> OnPostAsync()
 	{
+		// reload category options in case of validation fail
 		try
 		{
 			await PopulateCategoriesAsync();
@@ -52,19 +56,20 @@ public class CreateModel : PageModel
 		if (!ModelState.IsValid)
 			return Page();
 
-		Recipe.Id = Guid.Empty;
-		if (ChosenCategories != null)
-			Recipe.Categories = (List<string>)ChosenCategories;
-		if (Ingredients != null)
-			Recipe.Ingredients = Ingredients.Split(Environment.NewLine).ToList();
-		if (Instructions != null)
-			Recipe.Instructions = Instructions.Split(Environment.NewLine).ToList();
+		Recipe recipe = new()
+		{
+			Title = Title
+		};
 
-		var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
+		recipe.Categories.AddRange(ChosenCategories);
+		if (Ingredients != null)
+			recipe.Ingredients.AddRange(Ingredients.Split(Environment.NewLine).ToList());
+		if (Instructions != null)
+			recipe.Instructions.AddRange(Instructions.Split(Environment.NewLine).ToList());
+
 		try
 		{
-			var response = await httpClient.PostAsJsonAsync("recipes", Recipe);
-			response.EnsureSuccessStatusCode();
+			var reply = await _recipeServiceClient.CreateRecipeAsync(recipe);
 			ActionResult = "Successfully Created";
 		}
 		catch (Exception)
@@ -75,9 +80,8 @@ public class CreateModel : PageModel
 	}
 	public async Task PopulateCategoriesAsync()
 	{
-		var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-		var response = await httpClient.GetFromJsonAsync<IEnumerable<string>>("categories");
+		var response = await _categoryServiceClient.ListCategoriesAsync(new());
 		if (response != null)
-			Categories = response;
+			Categories = response.Categories;
 	}
 }

@@ -1,3 +1,5 @@
+using Grpc.Core;
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -15,10 +17,10 @@ public class EditModel : PageModel
 	[Required]
 	[Display(Name = "New Category Name")]
 	public string NewCategory { get; set; } = string.Empty;
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public EditModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	public EditModel(CategoryService.CategoryServiceClient categoryServiceClient) =>
+			_categoryServiceClient = categoryServiceClient;
 
 	public void OnGet()
 	{
@@ -29,10 +31,16 @@ public class EditModel : PageModel
 			return Page();
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			var response = await httpClient.PutAsync($"categories/{OldCategory}?editedcategory={NewCategory}", null);
-			response.EnsureSuccessStatusCode();
+			var response = await _categoryServiceClient.UpdateCategoryAsync(new()
+			{
+				Title = NewCategory,
+				OldTitle = OldCategory
+			});
 			ActionResult = "Created successfully";
+		}
+		catch (RpcException ex)
+		{
+			ActionResult = ex.Status.Detail;
 		}
 		catch (Exception)
 		{

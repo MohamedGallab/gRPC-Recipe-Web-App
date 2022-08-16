@@ -7,10 +7,8 @@ namespace GrpcRecipeBackend.Services;
 
 public class CategoryService : Protos.CategoryService.CategoryServiceBase
 {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-	private static List<string> s_categoriesList = null;
-	private static List<Recipe> s_recipesList = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+	private static List<string> s_categoriesList = new();
+	private static List<Recipe> s_recipesList = new();
 
 	public void LoadData()
 	{
@@ -79,6 +77,14 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 		{
 			s_categoriesList.Remove(oldCategory);
 			s_categoriesList.Add(request.Title);
+			foreach (var recipe in s_recipesList)
+			{
+				if (recipe.Categories.Contains(oldCategory))
+				{
+					recipe.Categories.Remove(oldCategory);
+					recipe.Categories.Add(request.Title);
+				}
+			}
 			SaveData();
 			return Task.FromResult(request);
 		}
@@ -91,9 +97,13 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 	{
 		LoadData();
 
-		if (s_categoriesList.Find(r => r == request.OldTitle) is string oldCategory)
+		if (s_categoriesList.Find(r => r == request.Title) is string oldCategory)
 		{
 			s_categoriesList.Remove(oldCategory);
+			foreach (Recipe recipe in s_recipesList)
+			{
+				recipe.Categories.Remove(oldCategory);
+			}
 			SaveData();
 			return Task.FromResult(request);
 		}

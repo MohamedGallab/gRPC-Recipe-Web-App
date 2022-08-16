@@ -1,3 +1,4 @@
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -12,10 +13,10 @@ public class CreateModel : PageModel
 	[Required]
 	[Display(Name = "Category Name")]
 	public string Category { get; set; } = string.Empty;
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public CreateModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	public CreateModel(CategoryService.CategoryServiceClient categoryServiceClient) =>
+			_categoryServiceClient = categoryServiceClient;
 	public void OnGet()
 	{
 	}
@@ -26,9 +27,10 @@ public class CreateModel : PageModel
 			return Page();
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			var response = await httpClient.PostAsJsonAsync("categories?category=" + Category, Category);
-			response.EnsureSuccessStatusCode();
+			var response = await _categoryServiceClient.CreateCategoryAsync(new()
+			{
+				Title = Category
+			});
 			ActionResult = "Created successfully";
 		}
 		catch (Exception)

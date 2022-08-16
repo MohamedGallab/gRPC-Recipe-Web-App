@@ -1,3 +1,4 @@
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -9,10 +10,10 @@ public class DeleteModel : PageModel
 	public string? ActionResult { get; set; }
 	[FromRoute(Name = "category")]
 	public string Category { get; set; } = string.Empty;
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public DeleteModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	public DeleteModel(CategoryService.CategoryServiceClient categoryServiceClient) =>
+			_categoryServiceClient = categoryServiceClient;
 
 	public void OnGet()
 	{
@@ -22,9 +23,7 @@ public class DeleteModel : PageModel
 	{
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			var response = await httpClient.DeleteAsync($"categories/{Category}");
-			response.EnsureSuccessStatusCode();
+			var response = await _categoryServiceClient.DeleteCategoryAsync(new() { Title = Category });
 			ActionResult = "Created successfully";
 		}
 		catch (Exception)

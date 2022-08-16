@@ -1,4 +1,5 @@
-using GrpcRecipeClient.Models;
+using Grpc.Core;
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -11,21 +12,26 @@ public class DeleteModel : PageModel
 	[BindProperty(SupportsGet = true)]
 	public Guid RecipeId { get; set; } = Guid.Empty;
 	public Recipe Recipe { get; set; } = new();
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly RecipeService.RecipeServiceClient _recipeServiceClient;
 
-	public DeleteModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	public DeleteModel(RecipeService.RecipeServiceClient recipeServiceClient) =>
+			_recipeServiceClient = recipeServiceClient;
 
 	public async Task<IActionResult> OnGet()
 	{
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			var response = await httpClient.GetFromJsonAsync<Recipe>($"recipes/{RecipeId}");
+			Recipe.Id = RecipeId.ToString();
+			var response = await _recipeServiceClient.ReadRecipeAsync(Recipe);
 			if (response == null)
 				return NotFound();
 			Recipe = response;
 			return Page();
+		}
+		catch (RpcException ex)
+		{
+			ActionResult = ex.Status.Detail;
+			return RedirectToPage("./Index");
 		}
 		catch (Exception)
 		{
@@ -38,14 +44,19 @@ public class DeleteModel : PageModel
 	{
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			var response = await httpClient.DeleteAsync($"recipes/{RecipeId}");
-			response.EnsureSuccessStatusCode();
+			Recipe.Id = RecipeId.ToString();
+			var response = await _recipeServiceClient.DeleteRecipeAsync(Recipe);
 			ActionResult = "Successfully Deleted";
+		}
+		catch (RpcException ex)
+		{
+			ActionResult = ex.Status.Detail;
+			return RedirectToPage("./Index");
 		}
 		catch (Exception)
 		{
 			ActionResult = "Something went wrong please try again later";
+			return RedirectToPage("./Index");
 		}
 		return RedirectToPage("./Index");
 	}

@@ -1,3 +1,4 @@
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,10 +8,10 @@ public class IndexModel : PageModel
 {
 	[TempData]
 	public string? ActionResult { get; set; }
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public IndexModel(IHttpClientFactory httpClientFactory) =>
-		_httpClientFactory = httpClientFactory;
+	public IndexModel(CategoryService.CategoryServiceClient categoryServiceClient) =>
+			_categoryServiceClient = categoryServiceClient;
 
 	public List<string> CategoryList { get; set; } = new();
 
@@ -18,8 +19,8 @@ public class IndexModel : PageModel
 	{
 		try
 		{
-			var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-			List<string>? categories = await httpClient.GetFromJsonAsync<List<string>>("categories");
+			var response = await _categoryServiceClient.ListCategoriesAsync(new());
+			List<string> categories = response.Categories.ToList();
 			if (categories != null)
 				CategoryList = categories;
 			return Page();

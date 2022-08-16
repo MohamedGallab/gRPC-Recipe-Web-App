@@ -11,13 +11,18 @@ public class TestModel : PageModel
 {
 
 	private readonly RecipeService.RecipeServiceClient _client;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public TestModel(RecipeService.RecipeServiceClient client) =>
+	public TestModel(RecipeService.RecipeServiceClient client, CategoryService.CategoryServiceClient categoryServiceClient)
+	{
 		_client = client;
+		_categoryServiceClient = categoryServiceClient;
+	}
+
 
 	public async Task OnGetAsync()
 	{
-		await UpdateRecipe();
+		await ReadRecipe();
 	}
 
 	public async Task CreateRecipe()
@@ -28,6 +33,24 @@ public class TestModel : PageModel
 			Categories = { "lunch", "dinner" },
 			Ingredients = { "tuna can" },
 			Instructions = { "open", "eat" }
+		});
+		Console.WriteLine(reply);
+	}
+
+	public async Task CreateCategory()
+	{
+		var reply = await _categoryServiceClient.CreateCategoryAsync(new Category
+		{
+			Title = "Italian"
+		});
+		Console.WriteLine(reply);
+	}
+
+	public async Task ReadRecipe()
+	{
+		var reply = await _client.ReadRecipeAsync(new Recipe
+		{
+			Id = "1"
 		});
 		Console.WriteLine(reply);
 	}

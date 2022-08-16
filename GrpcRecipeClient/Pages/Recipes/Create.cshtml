@@ -8,29 +8,29 @@
 
 <form method="post">
 	<div class="my-3 row">
-		<label asp-for="@Model.Recipe.Title" class="col-2 col-form-label"></label>
+		<label asp-for="@Model.Title" class="col-2 col-form-label"></label>
 		<div class="col-3">
-			<input asp-for="@Model.Recipe.Title" class="form-control" />
+			<input asp-for="@Model.Title" class="form-control" />
 		</div>
-		<span asp-validation-for="@Model.Recipe.Title" class="text-danger"></span>
+		<span asp-validation-for="@Model.Title" class="text-danger"></span>
 	</div>
 
 	<div class="my-3 row">
-		<label asp-for=@Model.Recipe.Ingredients class="col-form-label col-2 "></label>
+		<label asp-for=@Model.Ingredients class="col-form-label col-2 "></label>
 		<div class="col-5">
 			<textarea class="form-control" asp-for=@Model.Ingredients rows="5" placeholder="enter every ingredient on a separate line"></textarea>
 		</div>
 	</div>
 
 	<div class="my-3 row">
-		<label asp-for=@Model.Recipe.Instructions class="col-form-label col-2 "></label>
+		<label asp-for=@Model.Instructions class="col-form-label col-2 "></label>
 		<div class="col-5">
 			<textarea class="form-control" asp-for=@Model.Instructions rows="5" placeholder="enter every instruction on a separate line"></textarea>
 		</div>
 	</div>
 
 	<div class="my-3 row">
-		<label asp-for=@Model.Recipe.Categories class="col-form-label col-2 "></label>
+		<label asp-for=@Model.Categories class="col-form-label col-2 "></label>
 		<div class="col-10">
 			@foreach (string category in @Model.Categories)
 			{

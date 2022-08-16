@@ -18,5 +18,5 @@ message ListCategoriesResponse {
 
 message Category {
 	string title = 1;
-	optional string old_title = 2;
+	string old_title = 2;
 }

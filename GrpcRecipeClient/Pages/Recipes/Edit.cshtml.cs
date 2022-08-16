@@ -1,4 +1,5 @@
-using GrpcRecipeClient.Models;
+using Grpc.Core;
+using GrpcRecipeClient.Protos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -19,10 +20,14 @@ public class EditModel : PageModel
 	public string Ingredients { get; set; } = string.Empty;
 	[BindProperty]
 	public string Instructions { get; set; } = string.Empty;
-	private readonly IHttpClientFactory _httpClientFactory;
+	private readonly RecipeService.RecipeServiceClient _recipeServiceClient;
+	private readonly CategoryService.CategoryServiceClient _categoryServiceClient;
 
-	public EditModel(IHttpClientFactory httpClientFactory) =>
-			_httpClientFactory = httpClientFactory;
+	public EditModel(RecipeService.RecipeServiceClient recipeServiceClient, CategoryService.CategoryServiceClient categoryServiceClient)
+	{
+		_recipeServiceClient = recipeServiceClient;
+		_categoryServiceClient = categoryServiceClient;
+	}
 	public async Task<IActionResult> OnGetAsync(Guid recipeId)
 	{
 		await PopulateRecipeAndCategoriesAsync(recipeId);
@@ -40,21 +45,25 @@ public class EditModel : PageModel
 			await PopulateRecipeAndCategoriesAsync(recipeId);
 			return Page();
 		}
-
-		Recipe.Id = recipeId;
-		if (ChosenCategories != null)
-			Recipe.Categories = (List<string>)ChosenCategories;
+		var recipe = new Recipe
+		{
+			Id = recipeId.ToString(),
+			Title = Recipe.Title
+		};
+		recipe.Categories.AddRange(ChosenCategories);
 		if (Ingredients != null)
-			Recipe.Ingredients = Ingredients.Split(Environment.NewLine).ToList();
+			recipe.Ingredients.AddRange(Ingredients.Split(Environment.NewLine).ToList());
 		if (Instructions != null)
-			Recipe.Instructions = Instructions.Split(Environment.NewLine).ToList();
+			recipe.Instructions.AddRange(Instructions.Split(Environment.NewLine).ToList());
 
-		var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
 		try
 		{
-			var response = await httpClient.PutAsJsonAsync($"recipes/{Recipe.Id}", Recipe);
-			response.EnsureSuccessStatusCode();
+			var response = await _recipeServiceClient.UpdateRecipeAsync(recipe);
 			ActionResult = "Successfully Edited";
+		}
+		catch (RpcException ex)
+		{
+			ActionResult = ex.Status.Detail;
 		}
 		catch (Exception)
 		{
@@ -65,11 +74,11 @@ public class EditModel : PageModel
 
 	public async Task PopulateRecipeAndCategoriesAsync(Guid recipeId)
 	{
-		var httpClient = _httpClientFactory.CreateClient("RecipeAPI");
-		var categoriesResponse = await httpClient.GetFromJsonAsync<IEnumerable<string>>("categories");
+		var categoriesResponse = await _categoryServiceClient.ListCategoriesAsync(new());
 		if (categoriesResponse != null)
-			Categories = categoriesResponse;
-		var recipeResponse = await httpClient.GetFromJsonAsync<Recipe>($"recipes/{recipeId}");
+			Categories = categoriesResponse.Categories;
+		Recipe.Id = recipeId.ToString();
+		var recipeResponse = await _recipeServiceClient.ReadRecipeAsync(Recipe);
 		if (recipeResponse != null)
 			Recipe = recipeResponse;
 	}
