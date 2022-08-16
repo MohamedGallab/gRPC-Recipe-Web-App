@@ -2,6 +2,7 @@
 using Google.Protobuf;
 using GrpcRecipeBackend.Protos;
 using Google.Protobuf.WellKnownTypes;
+using Newtonsoft.Json;
 
 namespace GrpcRecipeBackend.Services;
 
@@ -9,60 +10,53 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 {
 	private static List<string> s_categoriesList = new();
 	private static List<Recipe> s_recipesList = new();
+	private readonly string _recipesFile = "Recipes.json";
+	private readonly string _categoriesFile = "Categories.json";
 
-	public void LoadData()
+	public async Task LoadDataAsync()
 	{
 		// load previous recipes if exists
-		string recipesFile = "Recipes.json";
-
-		if (File.Exists(recipesFile))
+		if (File.Exists(_recipesFile))
 		{
-			using var input = File.OpenRead(recipesFile);
-			s_recipesList = ListRecipesResponse.Parser.ParseFrom(input).Recipes.ToList();
+			var jsonRecipesString = await File.ReadAllTextAsync(_recipesFile);
+			s_recipesList = JsonConvert.DeserializeObject<List<Recipe>>(jsonRecipesString)!;
 		}
 		else
 		{
-			File.Create(recipesFile).Dispose();
+			File.Create(_recipesFile).Dispose();
 		}
 
 		// load previous categories if exists
-		string categoriesFile = "Categories.json";
-
-		if (File.Exists(categoriesFile))
+		if (File.Exists(_categoriesFile))
 		{
-			using var input = File.OpenRead(categoriesFile);
-			s_categoriesList = ListCategoriesResponse.Parser.ParseFrom(input).Categories.ToList();
+			var jsonCategoriesString = await File.ReadAllTextAsync(_categoriesFile);
+			s_categoriesList = JsonConvert.DeserializeObject<List<string>>(jsonCategoriesString)!;
 		}
 		else
 		{
-			File.Create(categoriesFile).Dispose();
+			File.Create(_categoriesFile).Dispose();
 		}
 	}
 
-	public void SaveData()
+	public async Task SaveDataAsync()
 	{
-		var tempRecipes = new ListRecipesResponse();
-		tempRecipes.Recipes.AddRange(s_recipesList.OrderBy(o => o.Title).ToList());
-		using var outputRecipes = File.Create("Recipes.json");
-		tempRecipes.WriteTo(outputRecipes);
-
-		var tempCategories = new ListCategoriesResponse();
-		tempCategories.Categories.AddRange(s_categoriesList.OrderBy(o => o).ToList());
-		using var outputCategories = File.Create("Categories.json");
-		tempCategories.WriteTo(outputCategories);
+		await Task.WhenAll(
+			File.WriteAllTextAsync(_recipesFile, JsonConvert.SerializeObject(s_recipesList, Formatting.Indented)),
+			File.WriteAllTextAsync(_categoriesFile, JsonConvert.SerializeObject(s_categoriesList, Formatting.Indented))
+		);
 	}
 
-	public override Task<ListCategoriesResponse> ListCategories(Empty request, ServerCallContext context)
+	public override async Task<ListCategoriesResponse> ListCategories(Empty request, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 		ListCategoriesResponse response = new();
 		response.Categories.AddRange(s_categoriesList);
-		return Task.FromResult(response);
+		return response;
 	}
 
-	public override Task<Category> CreateCategory(Category request, ServerCallContext context)
+	public override async Task<Category> CreateCategory(Category request, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (request.Title == null)
 		{
@@ -77,13 +71,13 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 		}
 
 		s_categoriesList.Add(request.Title);
-		SaveData();
-		return Task.FromResult(request);
+		await SaveDataAsync();
+		return request;
 	}
 
-	public override Task<Category> UpdateCategory(Category request, ServerCallContext context)
+	public override async Task<Category> UpdateCategory(Category request, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (s_categoriesList.Find(r => r == request.OldTitle) is string oldCategory)
 		{
@@ -97,17 +91,17 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 					recipe.Categories.Add(request.Title);
 				}
 			}
-			SaveData();
-			return Task.FromResult(request);
+			await SaveDataAsync();
+			return request;
 		}
 
 		const string msg = "Could not find category";
 		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
-	public override Task<Category> DeleteCategory(Category request, ServerCallContext context)
+	public override async Task<Category> DeleteCategory(Category request, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (s_categoriesList.Find(r => r == request.Title) is string oldCategory)
 		{
@@ -116,8 +110,8 @@ public class CategoryService : Protos.CategoryService.CategoryServiceBase
 			{
 				recipe.Categories.Remove(oldCategory);
 			}
-			SaveData();
-			return Task.FromResult(request);
+			await SaveDataAsync();
+			return request;
 		}
 
 		const string msg = "Could not find category";

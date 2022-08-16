@@ -1,22 +1,22 @@
 ﻿using Grpc.Core;
 using GrpcRecipeBackend.Protos;
 using Google.Protobuf;
+using Newtonsoft.Json;
 
 namespace GrpcRecipeBackend.Services;
 
 public class RecipeService : Protos.RecipeService.RecipeServiceBase
 {
 	private static List<Recipe> s_recipesList = new();
+	string recipesFile = "Recipes.json";
 
-	public void LoadData()
+	public async Task LoadDataAsync()
 	{
 		// load previous recipes if exists
-		string recipesFile = "Recipes.json";
-
 		if (File.Exists(recipesFile))
 		{
-			using var input = File.OpenRead(recipesFile);
-			s_recipesList = ListRecipesResponse.Parser.ParseFrom(input).Recipes.ToList();
+			var jsonRecipesString = await File.ReadAllTextAsync(recipesFile);
+			s_recipesList = JsonConvert.DeserializeObject<List<Recipe>>(jsonRecipesString)!;
 		}
 		else
 		{
@@ -24,27 +24,24 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 		}
 	}
 
-	public void SaveData()
+	public async Task SaveDataAsync()
 	{
-		var temp = new ListRecipesResponse();
-		temp.Recipes.AddRange(s_recipesList.OrderBy(o => o.Title).ToList());
-		using var output = File.Create("Recipes.json");
-		temp.WriteTo(output);
+		await File.WriteAllTextAsync("Recipes.json", JsonConvert.SerializeObject(s_recipesList, Formatting.Indented));
 	}
 
-	public override Task<ListRecipesResponse> ListRecipes(Google.Protobuf.WellKnownTypes.Empty request, ServerCallContext context)
+	public override async Task<ListRecipesResponse> ListRecipes(Google.Protobuf.WellKnownTypes.Empty request, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 		ListRecipesResponse response = new();
 		response.Recipes.AddRange(s_recipesList);
-		return Task.FromResult(response);
+		return response;
 	}
 
-	public override Task<Recipe> CreateRecipe(Recipe recipe, ServerCallContext context)
+	public override async Task<Recipe> CreateRecipe(Recipe recipe, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
-		if(recipe.Title == null)
+		if (recipe.Title == null)
 		{
 			const string msg = "Invalid Recipe";
 			throw new RpcException(new Status(StatusCode.InvalidArgument, msg));
@@ -52,47 +49,47 @@ public class RecipeService : Protos.RecipeService.RecipeServiceBase
 
 		recipe.Id = Guid.NewGuid().ToString();
 		s_recipesList.Add(recipe);
-		SaveData();
-		return Task.FromResult(recipe);
+		await SaveDataAsync();
+		return recipe;
 	}
 
-	public override Task<Recipe> ReadRecipe(Recipe recipe, ServerCallContext context)
+	public override async Task<Recipe> ReadRecipe(Recipe recipe, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe foundRecipe)
 		{
-			return Task.FromResult(foundRecipe);
+			return foundRecipe;
 		}
 		const string msg = "Could not find recipe";
 		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
-	public override Task<Recipe> UpdateRecipe(Recipe recipe, ServerCallContext context)
+	public override async Task<Recipe> UpdateRecipe(Recipe recipe, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe oldRecipe)
 		{
 			s_recipesList.Remove(oldRecipe);
 			s_recipesList.Add(recipe);
-			SaveData();
-			return Task.FromResult(recipe);
+			await SaveDataAsync();
+			return recipe;
 		}
 
 		const string msg = "Could not find recipe";
 		throw new RpcException(new Status(StatusCode.NotFound, msg));
 	}
 
-	public override Task<Recipe> DeleteRecipe(Recipe recipe, ServerCallContext context)
+	public override async Task<Recipe> DeleteRecipe(Recipe recipe, ServerCallContext context)
 	{
-		LoadData();
+		await LoadDataAsync();
 
 		if (s_recipesList.Find(r => r.Id == recipe.Id) is Recipe oldRecipe)
 		{
 			s_recipesList.Remove(oldRecipe);
-			SaveData();
-			return Task.FromResult(recipe);
+			await SaveDataAsync();
+			return recipe;
 		}
 
 		const string msg = "Could not find recipe";
